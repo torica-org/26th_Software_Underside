@@ -5,6 +5,9 @@
 #include "Underside_config.h"
 #include "UARTHelper_Under.h"
 #include "DPS310.h"
+// #include "BMP3xx.h" // 本番はこれを使う
+#include "calculate_altitude.h"
+
 #include "LED.h"
 #include "NeoPixel.h"
 #include "SD_Under.h"
@@ -56,6 +59,7 @@ void setup() {
   Wire.setClock(400000);
 
   init_DPS310();
+  // BMP3XX_init(); // 本番はこれを使う
 
   init_NeoPixel();
 
@@ -109,13 +113,24 @@ void loop() {
     }
 
 
-    //気圧・温度取得
+    //気圧・温度取得 for DPS310
     if (DPS310_is_OK() == true) {
       Lightup_NeoPixel(BLUE);
       read_dps();
+      calculate_bmp_altitude(); // 気圧高度の計算．DPS310の値を使うからDPS310の値取得後に計算
       NeoPixel_off();
     }
 
+    // 気圧・温度高度取得 for BMP3XX
+    /*----
+    Lightup_NeoPixel(BLUE);
+    read_bmp_under();
+    calculate_bmp_altitude(); // 気圧高度の計算．BMPの値を使うからBMPの値取得後に計算
+    NeoPixel_off();
+    ---*/
+
+
+    // SD書き込み
     if(SDisActive() == true){
       Lightup_NeoPixel(GREEN);
       flashSD();
@@ -164,6 +179,11 @@ void loop1() {
     read_tsd20();
     Serial.print("TSD20 altitude  ");
     Serial.println(data_under_tsd20_altitude_m);
+
+    // TSD20の値をもとに離陸判定
+    if (takeoff == false) { // 一度takeoffがtrueになったらずっとtrueのままにする
+        is_takeoff();
+    }
 
     write_intLED(LOW);
 

@@ -18,8 +18,12 @@ extern volatile uint32_t time_ms;
 // 気圧高度・超音波高度フィルタリング用
 extern volatile float filtered_bmp_altitude_m;
 extern volatile float filtered_urm_altitude_m;
+
 // 超音波高度を信用するか
 extern volatile bool urm_is_reliable;
+
+// 対気速度フィルタリング用
+extern volatile float filtered_airspeed_ms;
 
 /*--- エアデータ用 ---*/
 

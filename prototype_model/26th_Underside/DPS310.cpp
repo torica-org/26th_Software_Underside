@@ -34,8 +34,6 @@ void read_dps() {
 
     data_under_bmp_pressure_hPa = pressure_event.pressure;
     data_under_bmp_temperature_deg = temp_event.temperature;
-    data_under_bmp_altitude_m = (powf(1013.25 / data_under_bmp_pressure_hPa, 1 / 5.257) - 1) * (data_under_bmp_temperature_deg + 273.15) / 0.0065;
-
 }
 
 bool DPS310_is_OK() {
