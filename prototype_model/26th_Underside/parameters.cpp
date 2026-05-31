@@ -23,9 +23,6 @@ volatile float filtered_urm_altitude_m = 0.0f;
 // 超音波センサを信用するか
 volatile bool urm_is_reliable = false;
 
-// 対気速度フィルタリング用
-volatile float filtered_airspeed_ms = 0.0f;
-
 
 /*--- エアデータ用 ---*/
 
@@ -57,30 +54,30 @@ volatile int data_ics_angle = 0;
 
 
 /*--- 胴体桁電装用 ---*/
-volatile bool psd_is_alive = false;
+volatile bool fslg_is_alive = false;
 
 // BNO055
-volatile float data_psd_bno_accx_mss = 0.0f;
-volatile float data_psd_bno_accy_mss = 0.0f;
-volatile float data_psd_bno_accz_mss = 0.0f;
-volatile float data_psd_bno_qw = 0.0f;
-volatile float data_psd_bno_qx = 0.0f;
-volatile float data_psd_bno_qy = 0.0f;
-volatile float data_psd_bno_qz = 0.0f;
-volatile float data_psd_bno_roll = 0.0f;
-volatile float data_psd_bno_pitch = 0.0f;
-volatile float data_psd_bno_yaw = 0.0f;
+volatile float data_fslg_bno_accx_mss = 0.0f;
+volatile float data_fslg_bno_accy_mss = 0.0f;
+volatile float data_fslg_bno_accz_mss = 0.0f;
+volatile float data_fslg_bno_qw = 0.0f;
+volatile float data_fslg_bno_qx = 0.0f;
+volatile float data_fslg_bno_qy = 0.0f;
+volatile float data_fslg_bno_qz = 0.0f;
+volatile float data_fslg_bno_roll = 0.0f;
+volatile float data_fslg_bno_pitch = 0.0f;
+volatile float data_fslg_bno_yaw = 0.0f;
 
 // BNO055キャリブレーション状態保存用
-volatile uint8_t data_psd_bno_cal_system = 0;
-volatile uint8_t data_psd_bno_cal_gyro = 0;
-volatile uint8_t data_psd_bno_cal_accel = 0;
-volatile uint8_t data_psd_bno_cal_mag = 0;
+volatile uint8_t data_fslg_bno_cal_system = 0;
+volatile uint8_t data_fslg_bno_cal_gyro = 0;
+volatile uint8_t data_fslg_bno_cal_accel = 0;
+volatile uint8_t data_fslg_bno_cal_mag = 0;
 
 // BMP390
-volatile float data_psd_bmp_pressure_hPa = 0.0f;
-volatile float data_psd_bmp_temperature_deg = 0.0f;
-volatile float data_psd_bmp_altitude_m = 0.0f;
+volatile float data_fslg_bmp_pressure_hPa = 0.0f;
+volatile float data_fslg_bmp_temperature_deg = 0.0f;
+volatile float data_fslg_bmp_altitude_m = 0.0f;
 
 /*--- Under電装部 ---*/
 volatile bool under_is_alive = false;

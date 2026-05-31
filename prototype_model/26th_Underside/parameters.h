@@ -22,9 +22,6 @@ extern volatile float filtered_urm_altitude_m;
 // 超音波高度を信用するか
 extern volatile bool urm_is_reliable;
 
-// 対気速度フィルタリング用
-extern volatile float filtered_airspeed_ms;
-
 /*--- エアデータ用 ---*/
 
 // BMP390
@@ -54,30 +51,30 @@ extern volatile float data_air_AoS_angle_deg;
 extern volatile int data_ics_angle;
 
 /*--- 胴体桁電装用 ---*/
-extern volatile bool psd_is_alive;
+extern volatile bool fslg_is_alive;
 
 // BNO055
-extern volatile float data_psd_bno_accx_mss;
-extern volatile float data_psd_bno_accy_mss;
-extern volatile float data_psd_bno_accz_mss;
-extern volatile float data_psd_bno_qw;
-extern volatile float data_psd_bno_qx;
-extern volatile float data_psd_bno_qy;
-extern volatile float data_psd_bno_qz;
-extern volatile float data_psd_bno_roll;
-extern volatile float data_psd_bno_pitch;
-extern volatile float data_psd_bno_yaw;
+extern volatile float data_fslg_bno_accx_mss;
+extern volatile float data_fslg_bno_accy_mss;
+extern volatile float data_fslg_bno_accz_mss;
+extern volatile float data_fslg_bno_qw;
+extern volatile float data_fslg_bno_qx;
+extern volatile float data_fslg_bno_qy;
+extern volatile float data_fslg_bno_qz;
+extern volatile float data_fslg_bno_roll;
+extern volatile float data_fslg_bno_pitch;
+extern volatile float data_fslg_bno_yaw;
 
 // BNO055キャリブレーション状態保存用
-extern volatile uint8_t data_psd_bno_cal_system;
-extern volatile uint8_t data_psd_bno_cal_gyro;
-extern volatile uint8_t data_psd_bno_cal_accel;
-extern volatile uint8_t data_psd_bno_cal_mag;
+extern volatile uint8_t data_fslg_bno_cal_system;
+extern volatile uint8_t data_fslg_bno_cal_gyro;
+extern volatile uint8_t data_fslg_bno_cal_accel;
+extern volatile uint8_t data_fslg_bno_cal_mag;
 
 // BMP390
-extern volatile float data_psd_bmp_pressure_hPa;
-extern volatile float data_psd_bmp_temperature_deg;
-extern volatile float data_psd_bmp_altitude_m;
+extern volatile float data_fslg_bmp_pressure_hPa;
+extern volatile float data_fslg_bmp_temperature_deg;
+extern volatile float data_fslg_bmp_altitude_m;
 
 /*--- Under電装部 ---*/
 extern volatile bool under_is_alive;
