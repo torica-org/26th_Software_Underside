@@ -23,6 +23,8 @@ volatile float filtered_urm_altitude_m = 0.0f;
 // 超音波センサを信用するか
 volatile bool urm_is_reliable = false;
 
+// 対気速度フィルタリング用
+volatile float filtered_airspeed_ms = 0.0f;
 
 /*--- エアデータ用 ---*/
 
