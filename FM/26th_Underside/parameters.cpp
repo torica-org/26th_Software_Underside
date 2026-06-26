@@ -42,6 +42,7 @@ volatile double data_air_gps_latitude_deg = 0.0;
 volatile double data_air_gps_longitude_deg = 0.0;
 volatile double data_air_gps_altitude_m = 0.0;
 volatile double data_air_gps_groundspeed_ms = 0.0;
+volatile float data_air_gps_heading_deg = 0.0f;
 
 // SDP31
 volatile float data_air_sdp_differentialPressure_Pa = 0.0f;
@@ -80,6 +81,14 @@ volatile uint8_t data_fslg_bno_cal_mag = 0;
 volatile float data_fslg_bmp_pressure_hPa = 0.0f;
 volatile float data_fslg_bmp_temperature_deg = 0.0f;
 volatile float data_fslg_bmp_altitude_m = 0.0f;
+
+// LSM6DSV16X
+volatile float data_fslg_lsm_accx_mss = 0.0f;
+volatile float data_fslg_lsm_accy_mss = 0.0f;
+volatile float data_fslg_lsm_accz_mss = 0.0f;
+volatile float data_fslg_lsm_roll = 0.0f;
+volatile float data_fslg_lsm_pitch = 0.0f;
+volatile float data_fslg_lsm_yaw = 0.0f;
 
 /*--- Under電装部 ---*/
 volatile bool under_is_alive = false;

@@ -5,12 +5,14 @@
 */
 
 #include <Arduino.h>
-#include "URM37.h"
+#include "Echo.h"
 
-#include "parameters.h"
-#include "Underside_config.h"
+volatile float data_under_urm_altitude_m = 0.0;
 
-void init_echo() {
+const int URECHO = 26;
+const int URTRIG = 27;
+
+void echo_init() {
 
   pinMode(URTRIG, OUTPUT);
   pinMode(URECHO, INPUT);

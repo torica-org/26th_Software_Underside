@@ -3,7 +3,7 @@
 #include "parameters.h"
 
 
-extern char readUART_BUF[256];
+extern char readUART_BUF[512];
 
 
 // 関数のプロトタイプ宣言

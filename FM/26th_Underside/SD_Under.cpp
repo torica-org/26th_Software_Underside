@@ -8,30 +8,28 @@
 
 //ピン配置定義ファイルを読み込む
 #include "Underside_config.h"
-
 #include "parameters.h"
-
 #include <SPI.h>
 
 
-TORICA_SD sd(SD_CS, false); //引数なしでインスタンス化
+TORICA_SD sd(true); //インスタンス化
 
-char SD_BUF[256]; //SD書き込み用バッファ
+char SD_BUF[2048]; //SD書き込み用バッファ
 
 
 //SD初期化コード
 void initSD(){
 
-    //↓Xiaoだとこれいらない．panicする
-    // #ifdef ARDUINO_ARCH_RP2040 //RP2040およびRP2350のチェック用
-    // SPI.setCS(SD_CS);
-    // SPI.setSCK(SD_SCK);
-    // SPI.setTX(SD_MOSI);
-    // SPI.setRX(SD_MISO);
-    // #endif
-
+    SPI.setSCK(SD_SCK);
+    SPI.setTX(SD_MOSI);
+    SPI.setRX(SD_MISO);
     SPI.begin();
-    sd.begin(SD_CS);
+    
+    if (!sd.begin(SD_CS)) {
+    Serial.println("SD initialization failed!");
+  } else {
+    Serial.println("SD initialization done.");
+  }
 }
 
 

@@ -41,6 +41,7 @@ extern volatile double data_air_gps_latitude_deg;
 extern volatile double data_air_gps_longitude_deg;
 extern volatile double data_air_gps_altitude_m;
 extern volatile double data_air_gps_groundspeed_ms;
+extern volatile float data_air_gps_heading_deg;
 
 // SDP31
 extern volatile float data_air_sdp_differentialPressure_Pa;
@@ -78,6 +79,14 @@ extern volatile uint8_t data_fslg_bno_cal_mag;
 extern volatile float data_fslg_bmp_pressure_hPa;
 extern volatile float data_fslg_bmp_temperature_deg;
 extern volatile float data_fslg_bmp_altitude_m;
+
+// LSM6DSV16X
+extern volatile float data_fslg_lsm_accx_mss;
+extern volatile float data_fslg_lsm_accy_mss;
+extern volatile float data_fslg_lsm_accz_mss;
+extern volatile float data_fslg_lsm_roll;
+extern volatile float data_fslg_lsm_pitch;
+extern volatile float data_fslg_lsm_yaw;
 
 /*--- Under電装部 ---*/
 extern volatile bool under_is_alive;

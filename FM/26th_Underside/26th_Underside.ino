@@ -4,8 +4,8 @@
 #include "parameters.h"
 #include "Underside_config.h"
 #include "UARTHelper_Under.h"
-#include "DPS310.h"
-// #include "BMP3xx.h" // 本番はこれを使う
+// #include "DPS310.h" //25代基板でテストする用
+#include "BMP3xx.h" // 本番はこれを使う
 #include "calculate_altitude.h"
 
 #include "LED.h"
@@ -46,8 +46,6 @@ bool core1_timer_callback(struct repeating_timer *t) {
 
 void setup() {
   // put your setup code here, to run once:
-  watchdog_enable(2000, 1); // WatchDogを有効化．
-  // 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
 
   Serial.begin(460800);  //DEBUG用シリアル
 
@@ -58,7 +56,7 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000);
 
-  init_DPS310();
+  // init_DPS310(); // 25代基板でテストする用
   // BMP3XX_init(); // 本番はこれを使う
 
   init_NeoPixel();
@@ -74,16 +72,19 @@ void setup() {
   
   Serial.println("Setup1 Done.");
 
-  for (int i = 0; i<=3; i++){
-    write_intLED(1);
-    delay(500);
-    write_intLED(0);
-    delay(500);
-  }
+  // for (int i = 0; i<=3; i++){
+  //   write_intLED(1);
+  //   delay(500);
+  //   write_intLED(0);
+  //   delay(500);
+  // }
   write_intLED(0);
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
+
+  watchdog_enable(2000, 1); // WatchDogを有効化．
+  // 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
 
   Serial.println("Setup Done.");
 }
@@ -105,21 +106,17 @@ void loop() {
 
       save_SD_BUF(readUART_BUF);
 
-      if (receive_available() == false) {
-        delay(1);
-      }
-
       NeoPixel_off();
     }
 
 
     //気圧・温度取得 for DPS310
-    if (DPS310_is_OK() == true) {
-      Lightup_NeoPixel(BLUE);
-      read_dps();
-      calculate_bmp_altitude(); // 気圧高度の計算．DPS310の値を使うからDPS310の値取得後に計算
-      NeoPixel_off();
-    }
+    // if (DPS310_is_OK() == true) {
+    //   Lightup_NeoPixel(BLUE);
+    //   read_dps();
+    //   calculate_bmp_altitude(); // 気圧高度の計算．DPS310の値を使うからDPS310の値取得後に計算
+    //   NeoPixel_off();
+    // }
 
     // 気圧・温度高度取得 for BMP3XX
     /*----
@@ -137,7 +134,7 @@ void loop() {
       NeoPixel_off();
     } else {
       Lightup_NeoPixel(RED);
-      Serial.println("SD is not Active.");
+      // Serial.println("SD is not Active.");
       NeoPixel_off();
     }
     
@@ -146,12 +143,12 @@ void loop() {
     transmitLog();
 
     //for debug
-    Serial.print("URM altitude: ");
-    Serial.println(data_under_urm_altitude_m);
-    Serial.print("Pressure: ");
-    Serial.print(data_under_bmp_pressure_hPa);
-    Serial.print("  Temperature: ");
-    Serial.println(data_under_bmp_temperature_deg);
+    // Serial.print("URM altitude: ");
+    // Serial.println(data_under_urm_altitude_m);
+    // Serial.print("Pressure: ");
+    // Serial.print(data_under_bmp_pressure_hPa);
+    // Serial.print("  Temperature: ");
+    // Serial.println(data_under_bmp_temperature_deg);
 
 
     //WatchDogでCore1の生存確認
@@ -166,27 +163,33 @@ void loop() {
 
 void loop1() {
   if (core1_timer_triggered == true) {
-
     core1_timer_triggered = false; // タイマーのフラグを下す
 
     write_intLED(HIGH);
     
-    read_echo();
+    // 100Hzで毎回受信チェック
+    update_echo_distance();
 
-    Serial.print("URM altitude: ");
-    Serial.println(data_under_urm_altitude_m);
+    static int echo_counter = 0;
+    echo_counter++;
+    if (echo_counter >= 10) { // 100Hzで10回ごと（＝10Hz）
+      echo_counter = 0;
+      trigger_echo();
+
+      
+      // Serial.print("URM altitude: ");
+      // Serial.println(data_under_urm_altitude_m);
+    }
 
     read_tsd20();
-    Serial.print("TSD20 altitude  ");
-    Serial.println(data_under_tsd20_altitude_m);
 
     // TSD20の値をもとに離陸判定
-    if (takeoff == false) { // 一度takeoffがtrueになったらずっとtrueのままにする
-        is_takeoff();
+    if (takeoff == false) {
+        takeoff = is_takeoff();
     }
 
     write_intLED(LOW);
 
-    core1_alive = true; //ここまで正常に処理を完了できたらwatchdog用の生存フラグを立てる
+    core1_alive = true; 
   }
 }

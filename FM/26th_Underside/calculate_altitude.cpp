@@ -18,9 +18,11 @@ void calculate_bmp_altitude() {
     }
 }
 
-void is_takeoff(){
+bool is_takeoff(){
     filtered_tsd20_altitude_m.add(data_under_tsd20_altitude_m);
     if (filtered_tsd20_altitude_m.get() > 3.0f) { // TSD20のフィルタリング済み高度が3.0m以上なら離陸と判定
-        takeoff = true;
+        return true;
+    } else {
+        return false;
     }
 }

@@ -4,4 +4,4 @@
 
 void calculate_bmp_altitude();
 
-void is_takeoff();
+bool is_takeoff();
