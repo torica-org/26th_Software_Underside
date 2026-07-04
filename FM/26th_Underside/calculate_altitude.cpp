@@ -6,8 +6,6 @@
 // TSD20の値は離陸判定で使うため，移動平均をとる．
 TORICA_MoveAve<5> filtered_tsd20_altitude_m(0);   
 
-
-
 void calculate_bmp_altitude() {
     
     // 気圧高度計算
@@ -18,9 +16,18 @@ void calculate_bmp_altitude() {
     }
 }
 
+float filtered_tsd20 = 0.0f;
+
 bool is_takeoff(){
-    filtered_tsd20_altitude_m.add(data_under_tsd20_altitude_m);
+    if (data_under_tsd20_altitude_m >= 0.0){
+        filtered_tsd20_altitude_m.add(data_under_tsd20_altitude_m);
+    }
+
     if (filtered_tsd20_altitude_m.get() > 3.0f) { // TSD20のフィルタリング済み高度が3.0m以上なら離陸と判定
+
+        //for debug
+        filtered_tsd20 = filtered_tsd20_altitude_m.get();
+
         return true;
     } else {
         return false;

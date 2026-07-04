@@ -1,11 +1,7 @@
-/* read_dps(), init_dps()をread_bmp(), init_bmp()に書き換えること */
-
-
 #include "parameters.h"
 #include "Underside_config.h"
 #include "UARTHelper_Under.h"
-// #include "DPS310.h" //25代基板でテストする用
-#include "BMP3xx.h" // 本番はこれを使う
+#include "BMP3xx.h"
 #include "calculate_altitude.h"
 
 #include "LED.h"
@@ -18,7 +14,7 @@
 
 // WatchDog用
 #include "hardware/watchdog.h"
-volatile bool core1_alive; // core1の生存確認用フラグ
+volatile bool core1_alive;  // core1の生存確認用フラグ
 
 
 // ハードウェアタイマー設定
@@ -27,7 +23,7 @@ struct repeating_timer core0_timer;
 struct repeating_timer core1_timer;
 
 // 100Hz実行用フラグ
-volatile bool core0_timer_triggered = false; 
+volatile bool core0_timer_triggered = false;
 volatile bool core1_timer_triggered = false;
 
 // 100Hzごとにフラグを立てる
@@ -56,36 +52,23 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000);
 
-  // init_DPS310(); // 25代基板でテストする用
-  // BMP3XX_init(); // 本番はこれを使う
-
   init_NeoPixel();
 
-  init_echo();
-
-  init_tsd20();
-
-  initSD();
-
+  BMP3XX_init();
   init_intLED();
 
-  
-  Serial.println("Setup1 Done.");
-
-  // for (int i = 0; i<=3; i++){
-  //   write_intLED(1);
-  //   delay(500);
-  //   write_intLED(0);
-  //   delay(500);
-  // }
-  write_intLED(0);
+  init_echo();
+  init_tsd20();
+  initSD();
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
 
-  watchdog_enable(2000, 1); // WatchDogを有効化．
+  watchdog_enable(2000, 1);  // WatchDogを有効化．
   // 2000ms(=2s)経っても反応がない場合，システムが暴走したとみなして強制再起動
 
+  // セットアップ終了を示す合図
+  write_intLED(0);
   Serial.println("Setup Done.");
 }
 
@@ -97,7 +80,7 @@ void setup1() {
 
 void loop() {
   if (core0_timer_triggered == true /* 100Hz用フラグが立っていたら */) {
-    core0_timer_triggered = false; // フラグを戻す
+    core0_timer_triggered = false;  // フラグを戻す
 
     //UART受信
     while (receive_available() == true) {
@@ -128,7 +111,7 @@ void loop() {
 
 
     // SD書き込み
-    if(SDisActive() == true){
+    if (SDisActive() == true) {
       Lightup_NeoPixel(GREEN);
       flashSD();
       NeoPixel_off();
@@ -137,25 +120,16 @@ void loop() {
       // Serial.println("SD is not Active.");
       NeoPixel_off();
     }
-    
+
 
     //UART送信
     transmitLog();
 
-    //for debug
-    // Serial.print("URM altitude: ");
-    // Serial.println(data_under_urm_altitude_m);
-    // Serial.print("Pressure: ");
-    // Serial.print(data_under_bmp_pressure_hPa);
-    // Serial.print("  Temperature: ");
-    // Serial.println(data_under_bmp_temperature_deg);
-
-
     //WatchDogでCore1の生存確認
     if (core1_alive == true) {
-      watchdog_update(); //core1の生存を確認出来たらWatchDogTimerをアップデート
+      watchdog_update();  //core1の生存を確認出来たらWatchDogTimerをアップデート
 
-      core1_alive = false; //core1の生存フラグをfalseに戻す
+      core1_alive = false;  //core1の生存フラグをfalseに戻す
     }
   }
 }
@@ -163,33 +137,44 @@ void loop() {
 
 void loop1() {
   if (core1_timer_triggered == true) {
-    core1_timer_triggered = false; // タイマーのフラグを下す
+    core1_timer_triggered = false;  // タイマーのフラグを下す
 
     write_intLED(HIGH);
-    
+
     // 100Hzで毎回受信チェック
     update_echo_distance();
 
     static int echo_counter = 0;
     echo_counter++;
-    if (echo_counter >= 10) { // 100Hzで10回ごと（＝10Hz）
+    if (echo_counter >= 10) {  // 100Hzで10回ごと（＝10Hz）
       echo_counter = 0;
       trigger_echo();
-
-      
-      // Serial.print("URM altitude: ");
-      // Serial.println(data_under_urm_altitude_m);
     }
 
     read_tsd20();
 
-    // TSD20の値をもとに離陸判定
+    // TSD20の値をもとに離陸判定．離陸判定は一回限り．
     if (takeoff == false) {
-        takeoff = is_takeoff();
+      takeoff = is_takeoff();
     }
 
-    write_intLED(LOW);
+    // For Debug
+    static int serial_count = 0;
+    serial_count++;
+    if (serial_count > 200) {
+      Serial.print("URM altitude:  ");
+      Serial.println(data_under_urm_altitude_m);
 
-    core1_alive = true; 
+      Serial.print("TSD20[m]:  ");
+      Serial.println(data_under_tsd20_altitude_m);
+
+      Serial.print("Takeoff:  ");
+      Serial.println(takeoff);
+      serial_count = 0;
+    }
+
+
+    write_intLED(LOW);
+    core1_alive = true;
   }
 }

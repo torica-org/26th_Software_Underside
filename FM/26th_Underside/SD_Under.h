@@ -12,8 +12,8 @@
 
 void initSD();
 
-void save_SD_BUF(char* BUF);
+extern void save_SD_BUF(char* BUF);
 
-void flashSD();
+extern void flashSD();
 
 bool SDisActive();

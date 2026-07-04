@@ -18,8 +18,8 @@ const int Under_SDA = 6;
 const int Under_SCL = 7;
 
 //tsd20用
-const int tsd20_RX = D2;
-const int tsd20_TX = D3;
+const int tsd20_RX = 29;
+const int tsd20_TX = 5; // TSD20のRX用．ダミー．適当．
 
 
 //Xiao rp2040内蔵LED用
