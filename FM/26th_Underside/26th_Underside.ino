@@ -82,7 +82,7 @@ void loop() {
   if (core0_timer_triggered == true /* 100Hz用フラグが立っていたら */) {
     core0_timer_triggered = false;  // フラグを戻す
 
-    //UART受信
+    // UART受信
     while (receive_available() == true) {
       Lightup_NeoPixel(RED);
       receiveLog();
@@ -122,14 +122,14 @@ void loop() {
     }
 
 
-    //UART送信
+    // UART送信
     transmitLog();
 
-    //WatchDogでCore1の生存確認
+    // WatchDogでCore1の生存確認
     if (core1_alive == true) {
-      watchdog_update();  //core1の生存を確認出来たらWatchDogTimerをアップデート
+      watchdog_update();  // core1の生存を確認出来たらWatchDogTimerをアップデート
 
-      core1_alive = false;  //core1の生存フラグをfalseに戻す
+      core1_alive = false;  // core1の生存フラグをfalseに戻す
     }
   }
 }
