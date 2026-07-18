@@ -284,21 +284,21 @@ flowchart LR
 
     subgraph ISR ["ハードウェア割り込み (echo_isr)"]
         Echo_Pin{"URECHO ピン<br>CHANGE 検知"}
-        Echo_Pin -->|立ち下がり (LOW)| Rec_Start["echo_start_time = micros()"]
-        Echo_Pin -->|立ち上がり (HIGH)| Calc_Diff["echo_low_time = micros() - start_time<br>echo_data_ready = true"]
+        Echo_Pin -->|"立ち下がり (LOW)"| Rec_Start["echo_start_time = micros()"]
+        Echo_Pin -->|"立ち上がり (HIGH)"| Calc_Diff["echo_low_time = micros() - start_time<br>echo_data_ready = true"]
     end
 
     subgraph Parser ["パルス幅 -> 高度変換 (Core 1)"]
         Check_Ready{"echo_data_ready<br>== true ?"} -->|Yes| Check_Range{"low_time が<br>200 〜 40,000μs の範囲内か ?<br>(4cm 〜 8m)"}
         
         Check_Range -->|Yes| Calc_Alt["距離(cm) = low_time / 50<br>高度(m) = 距離 / 100"]
-        Check_Range -->|No (近すぎ・遠すぎ)| Alt_10["エラー扱い<br>高度(m) = 10.0"]
+        Check_Range -->|"No (近すぎ・遠すぎ)"| Alt_10["エラー扱い<br>高度(m) = 10.0"]
 
         Calc_Alt --> Save_URM["data_under_urm_altitude_m へ代入"]
         Alt_10 --> Save_URM
         
         Check_Ready -->|No| Check_Timeout{"waiting_for_echo == true かつ<br>トリガーから 60ms 以上経過 ?"}
-        Check_Timeout -->|Yes (タイムアウト)| Alt_10_TO["エラー扱い<br>高度(m) = 10.0"] --> Save_URM
+        Check_Timeout -->|"Yes (タイムアウト)"| Alt_10_TO["エラー扱い<br>高度(m) = 10.0"] --> Save_URM
     end
 
     Trigger -.- ISR
