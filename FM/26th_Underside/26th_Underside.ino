@@ -16,7 +16,6 @@
 #include "hardware/watchdog.h"
 volatile bool core1_alive;  // core1の生存確認用フラグ
 
-
 // ハードウェアタイマー設定
 #include "pico/stdlib.h"
 struct repeating_timer core0_timer;
@@ -37,8 +36,6 @@ bool core1_timer_callback(struct repeating_timer *t) {
   core1_timer_triggered = true;
   return true;
 }
-
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -84,16 +81,18 @@ void loop() {
 
     // UART受信
     while (receive_available() == true) {
-      Lightup_NeoPixel(RED);
+      // Lightup_NeoPixel(RED);
+      write_intLED(HIGH);
       receiveLog();
 
       save_SD_BUF(readUART_BUF);
 
-      NeoPixel_off();
+      // NeoPixel_off();
+      write_intLED(LOW);
     }
 
 
-    //気圧・温度取得 for DPS310
+    // 気圧・温度取得 for DPS310
     // if (DPS310_is_OK() == true) {
     //   Lightup_NeoPixel(BLUE);
     //   read_dps();
@@ -113,7 +112,13 @@ void loop() {
     // SD書き込み
     if (SDisActive() == true) {
       Lightup_NeoPixel(GREEN);
-      flashSD();
+      // 25回に1回(4Hz)の頻度でflash()を行うように修正
+      static int sd_flash_counter = 0;
+      sd_flash_counter++;
+      if (sd_flash_counter >= 25) {
+        flashSD();
+        sd_flash_counter = 0;
+      }
       NeoPixel_off();
     } else {
       Lightup_NeoPixel(RED);
@@ -139,8 +144,6 @@ void loop1() {
   if (core1_timer_triggered == true) {
     core1_timer_triggered = false;  // タイマーのフラグを下す
 
-    write_intLED(HIGH);
-
     // 100Hzで毎回受信チェック
     update_echo_distance();
 
@@ -154,27 +157,25 @@ void loop1() {
     read_tsd20();
 
     // TSD20の値をもとに離陸判定．離陸判定は一回限り．
-    if (takeoff == false) {
-      takeoff = is_takeoff();
-    }
+    // if (takeoff == false) {
+    //   takeoff = is_takeoff();
+    // }
 
     // For Debug
-    static int serial_count = 0;
-    serial_count++;
-    if (serial_count > 200) {
-      Serial.print("URM altitude:  ");
-      Serial.println(data_under_urm_altitude_m);
+    // static int serial_count = 0;
+    // serial_count++;
+    // if (serial_count > 200) {
+    //  Serial.print("URM altitude:  ");
+        Serial.println(data_under_urm_altitude_m);
 
-      Serial.print("TSD20[m]:  ");
-      Serial.println(data_under_tsd20_altitude_m);
+    //  Serial.print("TSD20[m]:  ");
+    //  Serial.println(data_under_tsd20_altitude_m); 
 
-      Serial.print("Takeoff:  ");
-      Serial.println(takeoff);
-      serial_count = 0;
-    }
+    //  Serial.print("Takeoff:  ");
+    //  Serial.println(takeoff);
+    //  serial_count = 0;
+    // }
 
-
-    write_intLED(LOW);
     core1_alive = true;
   }
 }
