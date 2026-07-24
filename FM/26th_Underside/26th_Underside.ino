@@ -57,6 +57,7 @@ void setup() {
   init_echo();
   init_tsd20();
   initSD();
+  initSDQueue(); // SD用キューの初期化
 
   // ハードウェアタイマー起動
   add_repeating_timer_ms(-10, core0_timer_callback, NULL, &core0_timer);
@@ -85,40 +86,22 @@ void loop() {
       write_intLED(HIGH);
       receiveLog();
 
-      save_SD_BUF(readUART_BUF);
+      save_SD_Queue(readUART_BUF); // キューへ非同期保存 (Core0はブロックしない)
 
       // NeoPixel_off();
       write_intLED(LOW);
     }
 
 
-    // 気圧・温度取得 for DPS310
-    // if (DPS310_is_OK() == true) {
-    //   Lightup_NeoPixel(BLUE);
-    //   read_dps();
-    //   calculate_bmp_altitude(); // 気圧高度の計算．DPS310の値を使うからDPS310の値取得後に計算
-    //   NeoPixel_off();
-    // }
-
     // 気圧・温度高度取得 for BMP3XX
-    /*----
-    Lightup_NeoPixel(BLUE);
+    // Lightup_NeoPixel(BLUE);
     read_bmp_under();
     calculate_bmp_altitude(); // 気圧高度の計算．BMPの値を使うからBMPの値取得後に計算
-    NeoPixel_off();
-    ---*/
+    // NeoPixel_off();
 
-
-    // SD書き込み
+    // SDステータス表示 (書き込み処理自体はCore1に移壊)
     if (SDisActive() == true) {
       Lightup_NeoPixel(GREEN);
-      // 25回に1回(4Hz)の頻度でflash()を行うように修正
-      static int sd_flash_counter = 0;
-      sd_flash_counter++;
-      if (sd_flash_counter >= 25) {
-        flashSD();
-        sd_flash_counter = 0;
-      }
       NeoPixel_off();
     } else {
       Lightup_NeoPixel(RED);
@@ -156,25 +139,8 @@ void loop1() {
 
     read_tsd20();
 
-    // TSD20の値をもとに離陸判定．離陸判定は一回限り．
-    // if (takeoff == false) {
-    //   takeoff = is_takeoff();
-    // }
-
-    // For Debug
-    // static int serial_count = 0;
-    // serial_count++;
-    // if (serial_count > 200) {
-    //  Serial.print("URM altitude:  ");
-        Serial.println(data_under_urm_altitude_m);
-
-    //  Serial.print("TSD20[m]:  ");
-    //  Serial.println(data_under_tsd20_altitude_m); 
-
-    //  Serial.print("Takeoff:  ");
-    //  Serial.println(takeoff);
-    //  serial_count = 0;
-    // }
+    // Core1でSDキューからデータを取り出し、SDカードに定期書き込み
+    process_SD_Queue();
 
     core1_alive = true;
   }

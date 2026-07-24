@@ -11,10 +11,14 @@
 #include "Underside_config.h"
 #include "parameters.h"
 #include <SPI.h>
+#include <pico/util/queue.h>
 
 TORICA_SD sd; // 引数なしでインスタンス化
 
 char SD_BUF[2048]; //SD書き込み用バッファ
+
+static queue_t sd_queue;
+static const uint SD_QUEUE_CAPACITY = 64; // 64要素 * 512バイト = 32KB
 
 //SD初期化コード
 void initSD(){
@@ -23,12 +27,68 @@ void initSD(){
     SPI.setTX(SD_MOSI);
     SPI.setRX(SD_MISO);
     SPI.begin();
+    // SPI.setClock(16000000); // SPIクロックを16MHzに設定
     
     if (!sd.begin(SD_CS)) {
     Serial.println("SD initialization failed!");
   } else {
     Serial.println("SD initialization done.");
   }
+}
+
+// キュー初期化
+void initSDQueue() {
+    queue_init(&sd_queue, sizeof(SDLogEntry), SD_QUEUE_CAPACITY);
+}
+
+// Core0から呼び出す非同期キュー追加関数
+bool save_SD_Queue(const char* BUF) {
+    if (BUF == NULL || BUF[0] == '\0') return false;
+
+    SDLogEntry entry;
+    strncpy(entry.data, BUF, sizeof(entry.data) - 1);
+    entry.data[sizeof(entry.data) - 1] = '\0';
+
+    bool success = queue_try_add(&sd_queue, &entry);
+    if (!success) {
+        Serial.println("[Warning] SD Queue Overflow!");
+    }
+    return success;
+}
+
+// Core1から呼び出すキュー処理・SD書き込み関数
+void process_SD_Queue() {
+    if (!sd.SDisActive) {
+        // SDがアクティブでない場合、3秒ごとに再初期化を試みる
+        static uint32_t last_retry_time = 0;
+        uint32_t now = millis();
+        if (now - last_retry_time >= 3000) {
+            last_retry_time = now;
+            if (sd.begin(SD_CS)) {
+                Serial.println("SD re-initialization done.");
+            } else {
+                Serial.println("SD re-initialization failed!");
+            }
+        }
+        return;
+    }
+
+    SDLogEntry entry;
+    bool had_data = false;
+
+    // キューに溜まっている全データを順次取り出してSDバッファに追加
+    while (queue_try_remove(&sd_queue, &entry)) {
+        sd.add_str(entry.data);
+        had_data = true;
+    }
+
+    // 250ms (4Hz) ごとにSDカードへフラッシュ書き込み
+    static uint32_t last_flash_time = 0;
+    uint32_t now = millis();
+    if (had_data && (now - last_flash_time >= 250)) {
+        flashSD();
+        last_flash_time = now;
+    }
 }
 
 // TORICA_SD内のバッファに保存
