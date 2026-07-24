@@ -35,7 +35,7 @@ Adafruit_BMP3XX bmp;
 
 // 機体下用
 bool BMP3XX_init(void){
-    if (!bmp.begin_I2C(0x77, &Wire)) {
+    if (!bmp.begin_I2C(0x76, &Wire)) {
         #ifdef DEBUG_MODE
         Serial.println("Could not find a valid BMP3 sensor, check wiring!");
         #endif DEBUG_MODE
@@ -76,7 +76,7 @@ bool BMP3XX_init(void){
 // }
 
 
-
+/*-----------------------------------
 void read_bmp_air(void){
     if(bmp.performReading() == true){
 
@@ -93,43 +93,45 @@ void read_bmp_air(void){
     }
 }
 
+----------------------------------*/
+
 
 /* 機体下電装用 */
 
-// void read_bmp_under(void){
-//     if(bmp.performReading() == true){
-
-//         data_under_bmp_pressure_hPa = bmp.pressure / 100 ; //気圧をhPaで表現
-//         data_under_bmp_temperature_deg = bmp.temperature; //温度を℃で返す
-
-//     } else if (bmp.performReading() == false){
-//         //読み取れなかった場合，0.0を返す
-//         #ifdef DEBUG_MODE
-//         Serial.println("Failed to reading :(");
-//         #endif DEBUG_MODE
-//         data_under_bmp_pressure_hPa = 0.0; 
-//         data_under_bmp_temperature_deg = 0.0;
-//     }
-// }
-
-
-/* 胴体桁電装用 */
-
-void read_bmp_fslg(void){
+void read_bmp_under(void){
     if(bmp.performReading() == true){
-        
-        data_fslg_bmp_pressure_hPa = bmp.pressure / 100 ; //気圧をhPaで表現
-        data_fslg_bmp_temperature_deg = bmp.temperature; //温度を℃で返す
+
+        data_under_bmp_pressure_hPa = bmp.pressure / 100 ; //気圧をhPaで表現
+        data_under_bmp_temperature_deg = bmp.temperature; //温度を℃で返す
 
     } else if (bmp.performReading() == false){
         //読み取れなかった場合，0.0を返す
         #ifdef DEBUG_MODE
         Serial.println("Failed to reading :(");
         #endif DEBUG_MODE
-        data_fslg_bmp_pressure_hPa = 0.0; 
-        data_fslg_bmp_temperature_deg = 0.0;
+        data_under_bmp_pressure_hPa = 0.0; 
+        data_under_bmp_temperature_deg = 0.0;
     }
 }
+
+
+/* 胴体桁電装用 */
+
+// void read_bmp_fslg(void){
+//     if(bmp.performReading() == true){
+        
+//         data_fslg_bmp_pressure_hPa = bmp.pressure / 100 ; //気圧をhPaで表現
+//         data_fslg_bmp_temperature_deg = bmp.temperature; //温度を℃で返す
+
+//     } else if (bmp.performReading() == false){
+//         //読み取れなかった場合，0.0を返す
+//         #ifdef DEBUG_MODE
+//         Serial.println("Failed to reading :(");
+//         #endif DEBUG_MODE
+//         data_fslg_bmp_pressure_hPa = 0.0; 
+//         data_fslg_bmp_temperature_deg = 0.0;
+//     }
+// }
 
 
 
